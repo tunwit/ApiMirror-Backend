@@ -1,0 +1,29 @@
+{
+  "name": "backend",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bun --watch src/index.ts",
+    "start": "bun src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio",
+    "db:seed": "bun scripts/seed-admin.ts",
+    "test:auth": "bun test tests/auth.test.ts"
+  },
+  "dependencies": {
+    "@elysiajs/cors": "^1.4.2",
+    "better-auth": "^1.7.14",
+    "dotenv": "^18.0.9",
+    "drizzle-orm": "^0.45.4",
+    "elysia": "^1.4.30",
+    "pg": "^8.23.1"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.4.4",
+    "@types/pg": "^8.23.1",
+    "drizzle-kit": "^0.31.11",
+    "typescript": "^7.0.2"
+  }
+}
