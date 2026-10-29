@@ -2,8 +2,8 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { username } from "better-auth/plugins";
 import { env } from "./config/config";
-import { db } from "./db";
-import * as schema from "./db/schema";
+import { db } from "./config/database";
+import * as schema from "@apimirror/database/schema";
 
 export const auth = betterAuth({
   appName: "ApiMirror",

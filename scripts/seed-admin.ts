@@ -1,7 +1,7 @@
 import { hashPassword, verifyPassword } from "better-auth/crypto";
 import { and, eq } from "drizzle-orm";
-import { db, pool } from "../src/db";
-import { account, user } from "../src/db/schema";
+import { db, pool } from "../src/config/database";
+import { account, user } from "@apimirror/database/schema";
 
 try {
   if (process.env.NODE_ENV === "production") {

@@ -31,6 +31,7 @@ export const env = {
   databaseURL: databaseURL(),
   authSecret: required("BETTER_AUTH_SECRET"),
   authURL: process.env.BETTER_AUTH_URL || "http://localhost:3001",
+  playgroundURL: process.env.PLAYGROUND_URL || "http://localhost:3002",
   frontendURL: process.env.FRONTEND_URL || "http://localhost:3000",
   port: Number(process.env.PORT || "3001"),
 };

@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
-import type { Database } from "../../db";
-import { projectToken, type NewProjectToken } from "./project-tokens.schema";
+import type { Database } from "@apimirror/database";
+import { projectToken, type NewProjectToken } from "@apimirror/database/schema";
 
 export class ProjectTokensRepo {
   constructor(private readonly db: Database) {}

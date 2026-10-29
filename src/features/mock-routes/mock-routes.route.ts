@@ -1,11 +1,10 @@
 import { Elysia } from "elysia";
-import { authentication, mockRoutes } from "../container";
+import { mockRoutesController as controller } from "../container";
+import { authPlugin } from "../auth/auth.plugin";
 import { createMockRouteBody, mockRouteParams, projectRouteParams, updateMockRouteBody } from "./mock-routes.dto";
 
-const controller = mockRoutes.controller;
-
 export const mockRoutesRoutes = new Elysia({ prefix: "/api/projects/:id/routes" })
-  .use(authentication.middleware)
+  .use(authPlugin)
   .get("", ({ userId, params }) => controller.list(userId, params.id), {
     params: projectRouteParams,
   })

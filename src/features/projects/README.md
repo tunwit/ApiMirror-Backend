@@ -44,8 +44,8 @@ The existing PATCH endpoint updates the project name/description, and DELETE rem
 
 Token metadata contains `id`, `projectId`, `prefix`, `createdAt` and `updatedAt`. Only a SHA-256 hash and display prefix are stored in PostgreSQL. The full token is generated from 32 cryptographically random bytes and returned only on project creation or regeneration. There is no reveal endpoint; copy/save the token when it is issued. Regeneration atomically replaces the stored hash, so future verification will accept only the new token. It also creates a token for an older project that has none.
 
-Settings and token responses and the project creation response use `Cache-Control: no-store`. Hashes are never serialized into responses. The `baseUrl` points to `/mock/{projectId}` on the configured backend URL; the mock execution handler is not implemented by this settings work. The frontend settings page remains UI-only.
+Settings and token responses and the project creation response use `Cache-Control: no-store`. Hashes are never serialized into responses. The `baseUrl` points to `/mock/{projectId}` on `PLAYGROUND_URL` (default `http://localhost:3002`); the playground currently exposes only its health endpoint, with mock execution still to be implemented. The frontend settings page remains UI-only.
 
 The project tables must exist before these endpoints can be used. Apply the previously generated migration with `bun run db:migrate` from `backend/`; this implementation does not apply it automatically.
 
-Request flow: route (validation/session/status) → controller (input/output mapping) → service (rules) → repo (database). Table definitions stay in `projects.schema.ts`, validation/contracts in `projects.dto.ts`, and response mapping in `projects.mapper.ts`.
+Request flow: route (validation/session/status) → controller (input/output mapping) → service (rules) → repo (database). Table definitions live in `packages/database/src/schema/projects.schema.ts`, validation/contracts in `projects.dto.ts`, and response mapping in `projects.mapper.ts`.

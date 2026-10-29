@@ -1,9 +1,9 @@
 import { and, desc, eq, getTableColumns, sql } from "drizzle-orm";
-import type { Database } from "../../db";
-import { project } from "./projects.schema";
+import type { Database } from "@apimirror/database";
+import { project } from "@apimirror/database/schema";
 import type { CreateProjectDto, UpdateProjectDto } from "./projects.dto";
-import { mockRoute } from "../mock-routes/mock-routes.schema";
-import { projectToken, type NewProjectToken } from "../project-tokens/project-tokens.schema";
+import { mockRoute } from "@apimirror/database/schema";
+import { projectToken, type NewProjectToken } from "@apimirror/database/schema";
 
 const projectFields = {
   ...getTableColumns(project),

@@ -5,16 +5,10 @@ import { env } from "./config/config";
 import { projectsRoutes } from "./features/projects/projects.route";
 import { mockRoutesRoutes } from "./features/mock-routes/mock-routes.route";
 import { projectTokensRoutes } from "./features/project-tokens/project-tokens.route";
-import { DomainError } from "./core/error";
+import { handleError } from "./core/error-handler";
 
 export const app = new Elysia()
-  .onError(({ error, status }) => {
-    if (error instanceof DomainError) {
-      return status(error.status, { message: error.message });
-    }
-    console.error(error);
-    return status(500, { message: "Unable to complete the request." });
-  })
+  .onError(handleError)
   .use(
     cors({
       origin: env.frontendURL,
@@ -24,6 +18,7 @@ export const app = new Elysia()
     }),
   )
   .mount(auth.handler)
+  .get("/", () => "ApiMirror Backend")
   .use(projectsRoutes)
   .use(mockRoutesRoutes)
   .use(projectTokensRoutes);

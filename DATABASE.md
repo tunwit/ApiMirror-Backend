@@ -31,8 +31,8 @@ Better Auth's existing tables and column definitions are preserved. Application 
 
 - The combination of project, method and path is unique. `GET /users` and `POST /users` can coexist in the same project.
 - Supported methods: GET, POST, PUT, PATCH, DELETE, HEAD and OPTIONS.
-- Store a pathname beginning with `/`, without query strings or fragments. Start with exact path matching. Parameterized paths and query matching are outside this step.
-- `status_code` defaults to 200 and is constrained to 100–599. The future handler must obey HTTP rules for responses that cannot carry bodies, including HEAD and 204/304.
+- Store a pathname beginning with `/`, without query strings or fragments. The playground supports exact paths and full-segment parameters such as `/users/:id`, with exact paths taking priority. Query strings do not participate in matching. Use `{{params.id}}` in response-body string values to insert a captured parameter; nested objects and arrays are supported.
+- `status_code` defaults to 200 and is constrained to 200–599. The playground returns the configured JSON body and status, suppressing the body for HEAD requests and statuses 204, 205 and 304.
 - `response_body` stores JSON and defaults to `{}`. SQL NULL is disallowed; JSON null remains a valid JSON response.
 - `required_body` stores a list of required top-level JSON field names, defaulting to `[]`. For example, `["email", "password"]` requires those two properties in the request body.
 - Missing required fields or an invalid/non-object JSON body when fields are required will return 400 before the configured response. Presence is the MVP rule: `false`, `0`, an empty string and JSON null count as present. Nested rules, type validation and matching exact values can be added later.
@@ -51,55 +51,29 @@ Each project has at most one token. Project creation generates a token from 32 c
 ## Feature-first structure
 
 ```text
-src/
+packages/database/
+  src/
+    index.ts                 # createDatabase and Database type
+    schema/                  # Shared tables and inferred record types
+  drizzle/                   # SQL migrations, snapshots and journal
+backend/src/
+  config/database.ts         # Backend-owned connection instance
   features/
-    auth/
-      auth.schema.ts
-    projects/
-      projects.route.ts
-      projects.controller.ts
-      projects.service.ts
-      projects.dto.ts
-      projects.mapper.ts
-      projects.repo.ts
-      projects.schema.ts
+    container.ts             # Feature dependency initialization
+    auth/                    # Elysia authentication plugin
+    projects/                # Routes, controllers, services, DTOs, mappers, repos
     mock-routes/
-      mock-routes.route.ts
-      mock-routes.controller.ts
-      mock-routes.service.ts
-      mock-routes.dto.ts
-      mock-routes.mapper.ts
-      mock-routes.repo.ts
-      mock-routes.schema.ts
     project-tokens/
-      project-tokens.route.ts
-      project-tokens.controller.ts
-      project-tokens.service.ts
-      project-tokens.dto.ts
-      project-tokens.mapper.ts
-      project-tokens.repo.ts
-      project-tokens.schema.ts
-  db/
-    index.ts
-    schema.ts
 ```
 
-Every application feature uses `<feature>.<layer>.ts` filenames, plus a `container.ts` that constructs and connects its class instances:
+Feature repositories and mappers import schema declarations from `@apimirror/database/schema`. Repositories import the shared `Database` type from `@apimirror/database`. Each app calls `createDatabase(connectionString)` once to create its own pool and Drizzle instance; the package does not read app configuration or initialize connections on import.
 
-| Layer | Responsibility |
-| --- | --- |
-| `route` | Declare Elysia endpoints and attach DTO validation and controllers |
-| `controller` | Read HTTP input, call services and set HTTP responses |
-| `service` | Business rules, ownership checks and coordination |
-| `dto` | Request validation and public response contracts |
-| `mapper` | Convert database records into public response DTOs |
-| `repo` | Database queries using Drizzle |
-| `schema` | Drizzle table definitions and inferred database types |
+Repositories, services, mappers and controllers are classes with constructor-injected dependencies. `features/container.ts` directly initializes all feature classes and connects their dependencies. Route modules export Elysia instances directly, and `app.ts` mounts them. DTOs and table schemas remain declarations. Better Auth handles authentication endpoints and credentials; the auth feature exports its Elysia plugin instance directly. See `src/features/README.md` for the dependency wiring.
 
-Repositories, services, mappers and controllers are classes with constructor-injected dependencies. Each feature's `container.ts` creates its classes; `features/container.ts` connects the features. Route modules export Elysia instances directly, and `app.ts` mounts them. DTOs and table schemas remain declarations. Better Auth handles authentication endpoints and credentials; the auth feature has its own plugin class and container. See `src/features/README.md` for the dependency wiring.
-
-`db/schema.ts` exports the feature schemas for Drizzle and Better Auth, keeping current imports compatible. There are no Drizzle relation definitions; use explicit joins in repositories when querying across tables. Database foreign keys still enforce ownership references and cascading deletes.
+`packages/database/src/schema/index.ts` exports the shared schemas for Drizzle and Better Auth. There are no Drizzle relation definitions; use explicit joins in repositories when querying across tables. Database foreign keys still enforce ownership references and cascading deletes.
 
 ## Migration
 
-The generated migration adds the three application tables and HTTP method enum. It preserves all existing authentication records. When ready to create these tables, run `bun run db:migrate` from `backend/`.
+Migration `0002_elite_james_howlett.sql` narrows the status-code constraint to 200–599. Before applying it, update any existing routes with 1xx codes to the intended final response code. The migration preserves stored data and will fail validation if unsupported codes remain.
+
+Migration files, snapshots and the journal live in `packages/database/drizzle/`; backend Drizzle commands point to this shared history. The existing migration adds the three application tables and HTTP method enum. It preserves all existing authentication records. When ready to create these tables, run `bun run db:migrate` from `backend/`.

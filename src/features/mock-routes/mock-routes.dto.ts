@@ -12,7 +12,7 @@ export const createMockRouteBody = t.Object({
     t.Literal("DELETE"), t.Literal("HEAD"), t.Literal("OPTIONS"),
   ]),
   path: t.String({ minLength: 1, maxLength: 2048, pattern: "^/[^\\s?#]*$" }),
-  statusCode: t.Integer({ minimum: 100, maximum: 599 }),
+  statusCode: t.Integer({ minimum: 200, maximum: 599 }),
   responseBody: t.Any(),
   requiredBody: t.Array(t.String({ minLength: 1, maxLength: 100 }), { uniqueItems: true }),
 }, { additionalProperties: false });

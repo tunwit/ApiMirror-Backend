@@ -1,11 +1,10 @@
 import { Elysia } from "elysia";
-import { authentication, projects } from "../container";
+import { projectsController as controller } from "../container";
+import { authPlugin } from "../auth/auth.plugin";
 import { createProjectBody, projectParams, updateProjectBody } from "./projects.dto";
 
-const controller = projects.controller;
-
 export const projectsRoutes = new Elysia({ prefix: "/api/projects" })
-  .use(authentication.middleware)
+  .use(authPlugin)
   .get("", ({ userId }) => controller.list(userId))
   .get("/:id", ({ userId, params }) => controller.get(userId, params.id), {
     params: projectParams,

@@ -1,11 +1,11 @@
-# Feature containers and dependency injection
+# Feature dependency initialization
 
-Each feature's `container.ts` constructs its repository, service, mapper and controller classes. Classes receive dependencies through their constructors. They do not import initialized repositories or services. DTOs and Drizzle schemas remain declarations.
+`features/container.ts` is the single place that constructs feature repositories, services, mappers and controllers. Initialization happens directly at module scope, with no container factory functions. Classes receive dependencies through their constructors; DTOs remain in their features; Drizzle schemas and inferred record types live in `packages/database` and are imported through `@apimirror/database/schema`.
 
-`features/container.ts` creates and exports the shared feature containers, supplying the database, configuration and authentication middleware. Route modules import their initialized controller and export an Elysia instance directly. `app.ts` mounts those instances.
+The shared projects repository is passed to the project-tokens service. That token service is injected into the projects service for automatic token generation and into the projects controller for settings. Mock routes receive the same projects service for ownership checks.
 
-The projects container creates its repository first and passes it into the project-tokens container. The resulting token service is injected into the projects service for automatic token generation, and into the projects controller for settings. Mock routes receive the same projects service for ownership checks. This keeps dependencies explicit without circular container imports.
+Route modules import their initialized controllers from `features/container.ts` and export Elysia instances directly. `app.ts` mounts those instances. The container does not import routes, avoiding circular initialization.
 
-Route modules use `export const projectsRoutes = new Elysia(...)` and equivalent declarations for other features. There are no route functions, route classes or route `register()` methods. Containers do not import routes, avoiding circular initialization. Authentication uses an injected Better Auth server and frontend URL. Existing URLs, session checks, domain errors, project/token transactions and response formats are preserved.
+`auth/auth.plugin.ts` exports the shared `authPlugin` Elysia instance directly. It uses the configured Better Auth server and frontend URL for session and origin checks. Routes attach it with `.use(authPlugin)`.
 
-No DI library is required. New dependencies should be passed into constructors and connected in the feature container. `new` calls for feature layers belong in containers, not controllers or services.
+No DI library is required. New dependencies should be passed into constructors and connected in `features/container.ts`. Feature-layer `new` calls belong in this shared container, not controllers or services.

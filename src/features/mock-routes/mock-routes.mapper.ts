@@ -1,4 +1,4 @@
-import type { MockRoute } from "./mock-routes.schema";
+import type { MockRoute } from "@apimirror/database/schema";
 
 export class MockRoutesMapper {
   toDto(route: MockRoute) {

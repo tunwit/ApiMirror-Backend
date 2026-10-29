@@ -1,4 +1,4 @@
-import type { ProjectToken } from "./project-tokens.schema";
+import type { ProjectToken } from "@apimirror/database/schema";
 import type { ProjectTokenDto } from "./project-tokens.dto";
 
 export class ProjectTokensMapper {

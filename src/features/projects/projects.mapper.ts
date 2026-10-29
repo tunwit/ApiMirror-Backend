@@ -1,4 +1,4 @@
-import type { Project } from "./projects.schema";
+import type { Project } from "@apimirror/database/schema";
 import type { ProjectDto } from "./projects.dto";
 
 export class ProjectsMapper {

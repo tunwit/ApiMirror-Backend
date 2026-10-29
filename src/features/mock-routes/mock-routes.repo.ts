@@ -1,6 +1,6 @@
 import { and, asc, eq, sql } from "drizzle-orm";
-import type { Database } from "../../db";
-import { mockRoute } from "./mock-routes.schema";
+import type { Database } from "@apimirror/database";
+import { mockRoute } from "@apimirror/database/schema";
 import type { CreateMockRouteDto, UpdateMockRouteDto } from "./mock-routes.dto";
 
 export class MockRoutesRepo {
